@@ -1,3 +1,7 @@
+# This file is a template for Python .gitignore files.
+# Local files and folders that should be ignored by Git.
+/data
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

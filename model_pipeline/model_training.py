@@ -232,7 +232,10 @@ class DeliveryTimePredictor:
         Returns:
             Dictionary of trained models
         """
+        logger.info("Starting training of all models...")
+        logger.info(f'Configuration: {self.config}')
         model_definitions = self.get_model_definitions()
+
         trained_models = {}
         
         for model_name in self.config['models_to_train']:

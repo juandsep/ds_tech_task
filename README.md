@@ -26,8 +26,20 @@ ds_tech_task/
 │   ├── explainability.md                # Feature importance and model insights
 │   └── error_insights.md                # Model failure analysis
 ├── strategic_reflections.md             # Strategic thinking and communication
-├── next_steps.md                        # API prototype and future enhancements
-├── src/                                 # Production-ready source code
+├── next_steps.md                        # API prototype and future enhancements  
+├── src/                                 # Production-ready FastAPI service
+│   ├── main.py                          # FastAPI application with all endpoints
+│   ├── config.py                        # Configuration management
+│   ├── middleware.py                    # Custom middleware for logging/monitoring
+│   ├── utils.py                         # Utility functions and error handling
+│   ├── test_api.py                      # Comprehensive test suite
+│   └── client_example.py                # Example API client
+├── Dockerfile                           # Container configuration
+├── docker-compose.yml                   # Multi-service orchestration
+├── nginx.conf                           # Reverse proxy configuration  
+├── requirements.txt                     # Python dependencies
+├── start_api.sh                         # Quick startup script
+├── .env.example                         # Environment configuration template
 └── README.md                            # This file
 ```
 
@@ -58,9 +70,16 @@ Comprehensive business analysis addressing delivery delay issues through SQL que
 
 End-to-end machine learning pipeline (`model_pipeline/`) that predicts delivery times using environmental factors, operational variables, and delivery metrics. Includes data preprocessing, model training with multiple algorithms, performance evaluation, and comprehensive reporting on model behavior and failure patterns.
 
-## Part III: FastAPI Service
+## Part III: FastAPI Service ✅
 
-Production-ready FastAPI service that provides real-time delivery time predictions through REST endpoints. Takes delivery details as input and returns estimated delivery times with confidence intervals and feature explanations.
+Production-ready FastAPI service (`src/`) that provides real-time delivery time predictions through REST endpoints. Features include:
+
+- **REST API**: Single and batch prediction endpoints with comprehensive validation
+- **Authentication**: JWT and API key support with middleware integration  
+- **Monitoring**: Health checks, metrics collection, and performance tracking
+- **Security**: CORS, rate limiting, input sanitization, and trusted host validation
+- **Testing**: Comprehensive test suite with unit tests and load testing
+- **Documentation**: OpenAPI/Swagger integration with interactive docs
 
 ## Getting Started
 
@@ -112,7 +131,43 @@ Production-ready FastAPI service that provides real-time delivery time predictio
 git clone <repository-url> && cd ds_tech_task && docker-compose up --build
 ```
 
-### Usage
+### Quick Start
+
+```bash
+# Option 1: Quick startup script
+./start_api.sh
+
+# Option 2: Manual setup
+pip install -r requirements.txt
+uvicorn src.main:app --reload
+
+# Option 3: Docker deployment  
+docker-compose up --build
+```
+
+### API Usage Examples
+
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# Single prediction
+curl -X POST "http://localhost:8000/predict" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "distance_km": 5.2,
+       "weather": "Clear", 
+       "traffic_level": "Medium",
+       "vehicle_type": "Scooter",
+       "preparation_time_min": 15.0,
+       "courier_experience_yrs": 3.0
+     }'
+
+# Interactive API documentation
+open http://localhost:8000/docs
+```
+
+### Python Client Usage
 ```python
 # FastAPI service example
 import requests

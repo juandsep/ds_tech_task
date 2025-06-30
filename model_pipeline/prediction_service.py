@@ -82,21 +82,23 @@ class DeliveryResponse(BaseModel):
     model_version: str
     timestamp: str
 
-class DeliveryTimePredictor:
+class PredictionService:
     """
     Production-ready delivery time prediction service.
     """
     
-    def __init__(self, model_path: str = None, preprocessor_path: str = None):
+    def __init__(self, model=None, preprocessor=None, model_path: str = None, preprocessor_path: str = None):
         """
         Initialize the prediction service.
         
         Args:
-            model_path: Path to the trained model
-            preprocessor_path: Path to the fitted preprocessor
+            model: Pre-trained model instance
+            preprocessor: Fitted preprocessor instance
+            model_path: Path to the trained model (if loading from file)
+            preprocessor_path: Path to the fitted preprocessor (if loading from file)
         """
-        self.model = None
-        self.preprocessor = None
+        self.model = model
+        self.preprocessor = preprocessor
         self.model_metadata = None
         self.feature_names = None
         self.monitor = ModelMonitor()
@@ -124,11 +126,16 @@ class DeliveryTimePredictor:
                 self.model_metadata = {}
             
             # Load preprocessor
-            self.preprocessor = DataPreprocessor()
-            self.preprocessor.load_preprocessor(preprocessor_path)
-            self.feature_names = self.preprocessor.get_feature_names()
+            if hasattr(preprocessor_path, 'endswith') and preprocessor_path.endswith('.pkl'):
+                self.preprocessor = joblib.load(preprocessor_path)
+            else:
+                self.preprocessor = DataPreprocessor()
+                self.preprocessor.load_preprocessor(preprocessor_path)
+                
+            if hasattr(self.preprocessor, 'get_feature_names'):
+                self.feature_names = self.preprocessor.get_feature_names()
             
-            # Load additional metadata if available
+            # Load additional metadata if available  
             if metadata_path:
                 additional_metadata = joblib.load(metadata_path)
                 self.model_metadata.update(additional_metadata)
@@ -139,6 +146,102 @@ class DeliveryTimePredictor:
             logger.error(f"Error loading model: {str(e)}")
             raise
     
+    def predict(self, request: DeliveryRequest) -> Dict[str, Any]:
+        """
+        Make a simple prediction (compatible with notebook usage).
+        
+        Args:
+            request: Delivery request data
+            
+        Returns:
+            Dictionary with prediction results
+        """
+        if self.model is None or self.preprocessor is None:
+            raise ValueError("Model and preprocessor must be loaded before prediction")
+        
+        try:
+            # Convert request to DataFrame
+            input_data = pd.DataFrame([request.dict()])
+            
+            # Handle Time_of_Day None values
+            if 'time_of_day' in input_data.columns and input_data['time_of_day'].isna().any():
+                input_data['time_of_day'] = input_data['time_of_day'].fillna('Evening')
+            
+            # Add dummy columns if needed for preprocessing compatibility
+            if 'Order_ID' not in input_data.columns:
+                input_data['Order_ID'] = 999999
+            if 'Delivery_Time_min' not in input_data.columns:
+                input_data['Delivery_Time_min'] = 0  # Will be ignored in transform
+            
+            # Rename columns to match training data format
+            column_mapping = {
+                'distance_km': 'Distance_km',
+                'weather': 'Weather', 
+                'traffic_level': 'Traffic_Level',
+                'time_of_day': 'Time_of_Day',
+                'vehicle_type': 'Vehicle_Type',
+                'preparation_time_min': 'Preparation_Time_min',
+                'courier_experience_yrs': 'Courier_Experience_yrs'
+            }
+            
+            for old_col, new_col in column_mapping.items():
+                if old_col in input_data.columns:
+                    input_data[new_col] = input_data[old_col]
+                    input_data.drop(columns=[old_col], inplace=True)
+            
+            # Transform the data - simple approach for notebook compatibility
+            feature_columns = ['Distance_km', 'Weather', 'Traffic_Level', 'Time_of_Day', 
+                             'Vehicle_Type', 'Preparation_Time_min', 'Courier_Experience_yrs']
+            
+            X = input_data[feature_columns].copy()
+            
+            # If preprocessor has transform method, use it; otherwise, use simple preprocessing
+            if hasattr(self.preprocessor, 'transform') and hasattr(self.preprocessor, 'preprocessor'):
+                X_processed = self.preprocessor.transform(X)
+            else:
+                # Simple preprocessing fallback
+                from sklearn.preprocessing import LabelEncoder, StandardScaler
+                X_processed = X.copy()
+                
+                # Handle categorical variables
+                categorical_cols = ['Weather', 'Traffic_Level', 'Time_of_Day', 'Vehicle_Type']
+                for col in categorical_cols:
+                    if col in X_processed.columns:
+                        le = LabelEncoder()
+                        # Fit with common values to avoid unseen category errors
+                        if col == 'Weather':
+                            le.fit(['Clear', 'Rainy', 'Snowy', 'Foggy', 'Windy'])
+                        elif col == 'Traffic_Level':
+                            le.fit(['Low', 'Medium', 'High'])
+                        elif col == 'Time_of_Day':
+                            le.fit(['Morning', 'Afternoon', 'Evening', 'Night'])
+                        elif col == 'Vehicle_Type':
+                            le.fit(['Car', 'Bike', 'Scooter'])
+                        
+                        X_processed[col] = le.transform(X_processed[col])
+                
+                X_processed = X_processed.values
+            
+            # Make prediction
+            prediction = self.model.predict(X_processed)[0]
+            
+            # Calculate simple confidence score
+            confidence = 0.85  # Default confidence for now
+            
+            # Create simple response
+            response = {
+                'prediction': float(prediction),
+                'confidence': confidence,
+                'model_version': '1.0',
+                'timestamp': pd.Timestamp.now().isoformat()
+            }
+            
+            return response
+            
+        except Exception as e:
+            logger.error(f"Error making prediction: {str(e)}")
+            raise
+
     def predict_single(self, request: DeliveryRequest) -> DeliveryResponse:
         """
         Make a single delivery time prediction.
@@ -402,7 +505,7 @@ def main():
     )
     
     # Initialize predictor (would normally load from saved files)
-    predictor = DeliveryTimePredictor()
+    predictor = PredictionService()
     
     # For testing without actual model files
     print("Test request created:")

@@ -1,89 +1,92 @@
-# Food Delivery Time Prediction Platform
+# Food Delivery Time Prediction API
 
-A food delivery platform operates in multiple urban regions. Lately, they've received complaints about delivery delays — but the causes are unclear. This project investigates the delivery delay issues, builds a system to predict delivery time, and provides actionable insights to help the Operations team respond more intelligently.
+ML-powered API for predicting food delivery times based on various factors like distance, weather, and traffic conditions.
 
-## Project Architecture
+## Project Structure
 
 ```
 ds_tech_task/
-┣━━ 📊 data/
-┃   ┣━━ Food_Delivery_Times.csv          # Raw delivery dataset (10K+ records)
-┃   └━━ food_delivery.db                 # SQLite database with structured tables
-┣━━ 🔍 sql/
-┃   ┣━━ sql_queries.sql                  # Business intelligence queries & analysis
-┃   └━━ sql_insights.md                  # Key business insights & recommendations
-┣━━ 📓 notebooks/
-┃   ┣━━ create_sql_tables.ipynb          # Database setup & data ingestion
-┃   └━━ exploratory_data_analysis.ipynb # Comprehensive EDA with visualizations
-┣━━ 🤖 model_pipeline/                   # Complete ML pipeline architecture
-┃   ┣━━ data_preprocessing.py            # Feature engineering & data preparation
-┃   ┣━━ model_training.py                # Model training with hyperparameter tuning
-┃   ┣━━ model_evaluation.py              # Performance evaluation & validation
-┃   ┣━━ prediction_service.py            # Core prediction engine
-┃   └━━ utils/
-┃       └━━ model_utils.py               # ML utilities & model persistence
-┣━━ 📋 reports/
-┃   ┣━━ EDA_report.md                    # Detailed exploratory analysis findings
-┃   ┣━━ model_notes.md                   # Model selection & tuning methodology
-┃   ┣━━ explainability.md                # Feature importance & SHAP analysis
-┃   └━━ error_insights.md                # Error patterns & failure analysis
-┣━━ 🚀 src/                              # Production-ready FastAPI service
-┃   ┣━━ main.py                          # FastAPI app with all REST endpoints
-┃   ┣━━ config.py                        # Environment & configuration management
-┃   ┣━━ middleware.py                    # Custom middleware (logging, rate limiting)
-┃   ┣━━ utils.py                         # API utilities & error handling
-┃   ┣━━ test_api.py                      # Comprehensive test suite
-┃   └━━ client_example.py                # Example client for API integration
-┣━━ 🐳 Deployment & Infrastructure
-┃   ┣━━ Dockerfile                       # Multi-stage container configuration
-┃   ┣━━ docker-compose.yml               # Service orchestration with nginx
-┃   ┣━━ nginx.conf                       # Reverse proxy & load balancing config
-┃   ┣━━ requirements.txt                 # Python dependencies specification
-┃   ┣━━ start_api.sh                     # Quick development startup script
-┃   └━━ .env.example                     # Environment variables template
-┣━━ 📝 Documentation & Strategy
-┃   ┣━━ strategic_reflections.md         # Strategic insights & business impact
-┃   ┣━━ next_steps.md                    # Roadmap & future enhancements
-┃   └━━ README.md                        # Complete project documentation
-┗━━ ⚙️ Configuration Files
-    ┣━━ pyproject.toml                   # Project configuration & dependencies
-    ┣━━ uv.lock                          # Dependency lock file
-    └━━ .gitignore                       # Version control exclusions
+├── data/
+│   ├── Food_Delivery_Times.csv    # Dataset with delivery records
+│   └── food_delivery.db           # SQLite database
+├── model_pipeline/
+│   ├── data_preprocessing.py      # Feature engineering & preprocessing
+│   ├── model_training.py          # Model training & hyperparameter tuning
+│   ├── model_evaluation.py        # Model evaluation & validation
+│   ├── prediction_service.py      # Prediction engine
+│   └── utils/
+│       └── model_utils.py         # ML utilities & persistence
+├── notebooks/
+│   ├── create_sql_tables.ipynb    # Database setup
+│   ├── exploratory_data_analysis.ipynb    # EDA & visualizations
+│   └── modelo_completo_pipeline.ipynb     # Complete model pipeline
+├── reports/
+│   ├── EDA_report.md             # Exploratory analysis findings
+│   ├── model_notes.md            # Model selection methodology
+│   ├── explainability.md         # Feature importance analysis
+│   ├── error_insights.md         # Error patterns analysis
+│   ├── strategic_reflections.md  # Strategic insights
+│   └── next_steps.md            # Future improvements
+├── sql/
+│   ├── sql_insights.md          # Business insights
+│   └── sql_queries.sql          # Analysis queries
+├── src/
+│   ├── main.py                  # FastAPI app & endpoints
+│   ├── config.py                # Environment configuration
+│   ├── middleware.py            # Custom middleware
+│   ├── utils.py                 # API utilities
+│   ├── test_api.py             # API tests
+│   └── client_example.py        # API client example
+├── Dockerfile                   # Container configuration
+├── requirements.txt             # Python dependencies
+├── start_api.sh                # Development startup script
+├── pyproject.toml              # Project configuration
+└── README.md                   # Project documentation
 ```
 
-### 🏗️ Architecture Layers
 
-**Data Layer (📊)**
-- Raw CSV data ingestion and SQLite database management
-- Structured data storage with optimized queries for analysis
+## Quick Start
 
-**Analysis Layer (🔍📓)**
-- SQL-based business intelligence and operational insights  
-- Interactive Jupyter notebooks for exploratory data analysis
-- Statistical analysis and data visualization
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/ds_tech_task.git
+cd ds_tech_task
 
-**ML Pipeline Layer (🤖)**
-- Modular preprocessing with feature engineering
-- Model training with cross-validation and hyperparameter optimization
-- Comprehensive evaluation with multiple metrics and error analysis
-- Production-ready prediction service with monitoring
+# Build and run with Docker
+docker build -t food-delivery-api .
+docker run -p 8000:8000 \
+    -v $(pwd)/data:/app/data:ro \
+    -v $(pwd)/models:/app/models:ro \
+    food-delivery-api
+```
 
-**API Layer (🚀)**
-- FastAPI REST service with OpenAPI documentation
-- Authentication, rate limiting, and security middleware
-- Health checks, metrics collection, and monitoring endpoints
-- Comprehensive testing and client integration examples
+The API will be available at `http://localhost:8000`
 
-**Infrastructure Layer (🐳)**
-- Docker containerization with multi-stage builds
-- Service orchestration with nginx reverse proxy
-- Environment-based configuration management
-- Production deployment automation
+## API Endpoints
 
-**Documentation Layer (📝)**
-- Business strategy and stakeholder communication
-- Technical documentation and API guides
-- Implementation roadmap and future planning
+- `POST /predict`: Get delivery time prediction
+- `GET /health`: Health check endpoint
+- `GET /docs`: Interactive API documentation
+
+## Development
+
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+2. Run the development server:
+```bash
+uvicorn src.main:app --reload
+```
+
+## Testing
+
+```bash
+pytest src/test_api.py
+```
+    └━━ .gitignore                       # Version control exclusions
+```
 
 ## 📊 Dataset Overview
 
@@ -282,48 +285,3 @@ response = requests.post("http://localhost:8000/predict", json={
 
 estimated_time = response.json()['predicted_delivery_time']
 ```
-
-## 🎯 Key Features & Capabilities
-
-### 📊 Business Intelligence & Analytics
-- **SQL-driven insights** into delivery performance patterns and delay root causes
-- **Operational KPIs** tracking with actionable recommendations for operations teams
-- **Customer area analysis** identifying high-delay zones and optimization opportunities
-- **Revenue impact assessment** through delivery efficiency improvements
-
-### 🤖 Advanced Machine Learning
-- **Multi-algorithm ensemble** with Random Forest, XGBoost, and Linear Regression models
-- **Hyperparameter optimization** using cross-validation and grid search techniques
-- **Feature engineering pipeline** with categorical encoding, scaling, and interaction terms
-- **Model explainability** using SHAP values and feature importance analysis
-- **Error pattern analysis** with segmentation and mitigation strategies
-
-### 🚀 Production-Ready API Architecture
-- **RESTful API design** with FastAPI and OpenAPI/Swagger documentation
-- **Scalable prediction service** supporting both single and batch predictions
-- **Enterprise security** with authentication, rate limiting, and input validation
-- **Comprehensive monitoring** with health checks, metrics, and performance tracking
-- **Container orchestration** with Docker and nginx reverse proxy support
-
-### 📈 Operational Excellence
-- **End-to-end testing** with unit tests, integration tests, and load testing
-- **Configuration management** with environment-based deployments
-- **Error handling & logging** with structured logging and error tracking
-- **Documentation standards** with technical and business stakeholder communication
-- **Deployment automation** with Docker Compose and production-ready configurations
-
-### 🎯 Business Impact
-- **Delivery time optimization** through predictive analytics and route planning
-- **Customer satisfaction improvement** via accurate delivery time estimates
-- **Operational cost reduction** through resource optimization and efficiency gains
-- **Strategic decision support** with data-driven insights for business growth
-
-## 🏆 Technical Excellence
-
-This project demonstrates enterprise-level data science practices including:
-
-- **Software Engineering Standards**: Modular code architecture, comprehensive testing, and documentation
-- **ML Operations (MLOps)**: Model versioning, monitoring, and production deployment pipelines  
-- **Security & Compliance**: Input validation, authentication, and secure API design
-- **Scalability & Performance**: Optimized for high-throughput production environments
-- **Business Communication**: Clear stakeholder reports with actionable insights 

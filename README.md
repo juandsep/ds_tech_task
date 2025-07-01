@@ -6,44 +6,44 @@ ML-powered API for predicting food delivery times based on various factors like 
 
 ```
 ds_tech_task/
-├── data/
-│   ├── Food_Delivery_Times.csv    # Dataset with delivery records
-│   └── food_delivery.db           # SQLite database
-├── model_pipeline/
-│   ├── data_preprocessing.py      # Feature engineering & preprocessing
-│   ├── model_training.py          # Model training & hyperparameter tuning
-│   ├── model_evaluation.py        # Model evaluation & validation
-│   ├── prediction_service.py      # Prediction engine
-│   └── utils/
-│       └── model_utils.py         # ML utilities & persistence
-├── notebooks/
-│   ├── create_sql_tables.ipynb    # Database setup
-│   ├── exploratory_data_analysis.ipynb    # EDA & visualizations
-│   └── modelo_completo_pipeline.ipynb     # Complete model pipeline
-├── reports/
-│   ├── EDA_report.md             # Exploratory analysis findings
-│   ├── model_notes.md            # Model selection methodology
-│   ├── explainability.md         # Feature importance analysis
-│   ├── error_insights.md         # Error patterns analysis
-│   ├── strategic_reflections.md  # Strategic insights
-│   └── next_steps.md            # Future improvements
-├── sql/
-│   ├── sql_insights.md          # Business insights
-│   └── sql_queries.sql          # Analysis queries
-├── src/
-│   ├── main.py                  # FastAPI app & endpoints
-│   ├── config.py                # Environment configuration
-│   ├── middleware.py            # Custom middleware
-│   ├── utils.py                 # API utilities
-│   ├── test_api.py             # API tests
-│   └── client_example.py        # API client example
-├── Dockerfile                   # Container configuration
-├── requirements.txt             # Python dependencies
-├── start_api.sh                # Development startup script
-├── pyproject.toml              # Project configuration
-└── README.md                   # Project documentation
+┣━━ 📊 data/
+┃   ┣━━ Food_Delivery_Times.csv          # Raw delivery dataset (10K+ records)
+┃   └━━ food_delivery.db                 # SQLite database with structured tables
+┣━━ 🔍 sql/
+┃   ┣━━ sql_queries.sql                  # Business intelligence queries & analysis
+┃   └━━ sql_insights.md                  # Key business insights & recommendations
+┣━━ 📓 notebooks/
+┃   ┣━━ create_sql_tables.ipynb          # Database setup & data ingestion
+┃   ┣━━ exploratory_data_analysis.ipynb  # Comprehensive EDA with visualizations
+┃   └━━ modelo_completo_pipeline.ipynb   # Complete model pipeline notebook
+┣━━ 🤖 model_pipeline/                   # Complete ML pipeline architecture
+┃   ┣━━ data_preprocessing.py            # Feature engineering & data preparation
+┃   ┣━━ model_training.py                # Model training with hyperparameter tuning
+┃   ┣━━ model_evaluation.py              # Performance evaluation & validation
+┃   ┣━━ prediction_service.py            # Core prediction engine
+┃   └━━ utils/
+┃       └━━ model_utils.py               # ML utilities & model persistence
+┣━━ 📋 reports/
+┃   ┣━━ EDA_report.md                    # Detailed exploratory analysis findings
+┃   ┣━━ model_notes.md                   # Model selection & tuning methodology
+┃   ┣━━ explainability.md                # Feature importance & SHAP analysis
+┃   ┣━━ error_insights.md                # Error patterns & failure analysis
+┃   ┣━━ strategic_reflections.md         # Strategic insights & business impact
+┃   └━━ next_steps.md                    # Future improvements roadmap
+┣━━ 🚀 src/                              # Production-ready FastAPI service
+┃   ┣━━ main.py                          # FastAPI app with all REST endpoints
+┃   ┣━━ config.py                        # Environment & configuration management
+┃   ┣━━ middleware.py                    # Custom middleware (logging, rate limiting)
+┃   ┣━━ utils.py                         # API utilities & error handling
+┃   ┣━━ test_api.py                      # Comprehensive test suite
+┃   └━━ client_example.py                # Example client for API integration
+┣━━ � Deployment
+┃   ┣━━ Dockerfile                       # Container configuration
+┃   ┣━━ requirements.txt                 # Python dependencies
+┗━━ ⚙️ Configuration
+    ┣━━ pyproject.toml                   # Project configuration & dependencies
+    └━━ uv.lock                          # Dependency lock file
 ```
-
 
 ## Quick Start
 
@@ -85,10 +85,7 @@ uvicorn src.main:app --reload
 ```bash
 pytest src/test_api.py
 ```
-    └━━ .gitignore                       # Version control exclusions
-```
-
-## 📊 Dataset Overview
+## Dataset Overview
 
 The dataset contains **10,000+ delivery records** with comprehensive delivery information across multiple dimensions:
 
@@ -170,18 +167,6 @@ The dataset contains **10,000+ delivery records** with comprehensive delivery in
 - `src/config.py` - Environment-based configuration management
 - `src/utils.py` - Error handling, input sanitization, and security utilities
 - `src/test_api.py` - Comprehensive test suite with unit and integration tests
-
-**Deployment Ready:**
-- Docker containerization with multi-stage builds
-- Docker Compose orchestration with nginx reverse proxy
-- Environment configuration templates and startup scripts
-- Production security features (CORS, rate limiting, input validation)
-
-**API Capabilities:**
-- Real-time delivery time predictions with confidence intervals
-- Batch processing for high-throughput scenarios
-- Feature explanation and model interpretability
-- Performance monitoring and operational metrics
 
 ## Getting Started
 

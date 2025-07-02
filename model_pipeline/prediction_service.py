@@ -492,6 +492,9 @@ class PredictionService:
         
         return info
 
+# Create alias for backward compatibility
+DeliveryTimePredictor = PredictionService
+
 def main():
     """Example usage of the prediction service."""
     # Create a test request

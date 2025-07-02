@@ -2,6 +2,36 @@
 
 ML-powered API for predicting food delivery times based on various factors like distance, weather, and traffic conditions.
 
+## 📋 Table of Contents
+
+- [Project Structure](#project-structure)
+- [Quick Start](#quick-start)
+  - [🐳 Docker Deployment (Recommended)](#-docker-deployment-recommended)
+  - [🔧 Local Development](#-local-development)
+- [🚀 API Endpoints](#-api-endpoints)
+  - [Core Endpoints](#core-endpoints)
+  - [Model Management](#model-management)
+  - [Example Usage](#example-usage)
+- [🧪 Testing](#-testing)
+  - [Run the Test Suite](#run-the-test-suite)
+  - [Manual Testing](#manual-testing)
+  - [Docker Testing](#docker-testing)
+- [📋 Deployment Guide](#-deployment-guide)
+- [Dataset Overview](#dataset-overview)
+  - [🎯 Core Delivery Metrics](#-core-delivery-metrics)
+  - [🌤️ Environmental Factors](#️-environmental-factors)
+  - [🚚 Operational Variables](#-operational-variables)
+  - [📈 Data Quality & Characteristics](#-data-quality--characteristics)
+- [🔍 Part I: SQL Business Intelligence](#-part-i-sql-business-intelligence-)
+- [🤖 Part II: ML Pipeline & Analysis](#-part-ii-ml-pipeline--analysis-)
+- [🚀 Part III: Production FastAPI Service](#-part-iii-production-fastapi-service-)
+- [Getting Started with Development](#getting-started-with-development)
+  - [Prerequisites](#prerequisites)
+  - [Development Setup](#development-setup)
+  - [Production Deployment Options](#production-deployment-options)
+
+---
+
 ## Project Structure
 
 ```
@@ -47,44 +77,156 @@ ds_tech_task/
 
 ## Quick Start
 
+### 🐳 Docker Deployment (Recommended)
+
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/ds_tech_task.git
+# Clone and navigate to the project
+git clone <repository-url>
 cd ds_tech_task
 
 # Build and run with Docker
 docker build -t food-delivery-api .
-docker run -p 8000:8000 \
-    -v $(pwd)/data:/app/data:ro \
-    -v $(pwd)/models:/app/models:ro \
-    food-delivery-api
+docker run -d -p 8000:8000 --name food-delivery-container food-delivery-api
+
+# Check if the container is running
+docker ps
+
+# View logs (optional)
+docker logs food-delivery-container
+```
+
+### 🔧 Local Development
+
+```bash
+# Create virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the development server
+uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 The API will be available at `http://localhost:8000`
 
-## API Endpoints
+- **API Documentation**: `http://localhost:8000/docs`
+- **Alternative Docs**: `http://localhost:8000/redoc`
+- **Health Check**: `http://localhost:8000/health`
 
-- `POST /predict`: Get delivery time prediction
-- `GET /health`: Health check endpoint
-- `GET /docs`: Interactive API documentation
+## 🚀 API Endpoints
 
-## Development
+### Core Endpoints
+- `POST /predict` - Get delivery time prediction
+- `GET /health` - Health check and system status
+- `GET /docs` - Interactive Swagger UI documentation
+- `GET /redoc` - Alternative API documentation
 
-1. Install dependencies:
+### Model Management
+- `GET /model/info` - Model metadata and performance metrics
+- `GET /metrics` - Real-time API usage metrics
+
+### Example Usage
+
+#### Health Check
 ```bash
-pip install -r requirements.txt
+curl -X GET "http://localhost:8000/health"
 ```
 
-2. Run the development server:
+#### Make a Prediction
 ```bash
-uvicorn src.main:app --reload
+curl -X POST "http://localhost:8000/predict" \
+-H "Content-Type: application/json" \
+-d '{
+  "distance_km": 5.2,
+  "weather": "Clear",
+  "traffic_level": "Medium",
+  "vehicle_type": "Scooter",
+  "preparation_time_min": 15.0,
+  "courier_experience_yrs": 3.5
+}'
 ```
 
-## Testing
-
+#### Check Model Information
 ```bash
-pytest src/test_api.py
+curl -X GET "http://localhost:8000/model/info"
 ```
+
+#### View API Metrics
+```bash
+curl -X GET "http://localhost:8000/metrics"
+```
+
+#### Python Client Example
+```python
+import requests
+
+# Make a prediction
+response = requests.post("http://localhost:8000/predict", json={
+    "distance_km": 5.2,
+    "weather": "Clear",
+    "traffic_level": "Medium",
+    "vehicle_type": "Scooter",
+    "preparation_time_min": 15.0,
+    "courier_experience_yrs": 3.5
+})
+
+result = response.json()
+print(f"Estimated delivery time: {result['predicted_delivery_time']} minutes")
+```
+
+## 🧪 Testing
+
+### Run the Test Suite
+```bash
+# Install test dependencies if not already installed
+pip install pytest pytest-asyncio httpx
+
+# Run all tests
+pytest src/test_api.py -v
+
+# Run specific test categories
+pytest src/test_api.py::test_health_endpoint -v
+pytest src/test_api.py::test_predict_endpoint -v
+```
+
+### Manual Testing
+```bash
+# Test with client example
+python src/client_example.py
+
+# Interactive testing with Swagger UI
+open http://localhost:8000/docs
+```
+
+### Docker Testing
+```bash
+# Test the API in Docker container
+docker run -d -p 8000:8000 --name test-container food-delivery-api
+
+# Wait a moment for startup, then test
+sleep 5
+curl http://localhost:8000/health
+
+# Cleanup
+docker stop test-container && docker rm test-container
+```
+
+## 📋 Deployment Guide
+
+For production deployment, scaling, monitoring, and security considerations, see the comprehensive deployment guide:
+
+**[📖 Detailed Deployment Guide](reports/deployment_guide.md)**
+
+This guide includes:
+- **Docker & Docker Compose** setup
+- **Cloud deployment** (AWS, GCP, Azure)
+- **Kubernetes** configurations
+- **Monitoring & logging** setup
+- **Security** best practices
+- **Performance optimization**
+- **CI/CD** pipeline examples
 ## Dataset Overview
 
 The dataset contains **10,000+ delivery records** with comprehensive delivery information across multiple dimensions:
@@ -168,15 +310,15 @@ The dataset contains **10,000+ delivery records** with comprehensive delivery in
 - `src/utils.py` - Error handling, input sanitization, and security utilities
 - `src/test_api.py` - Comprehensive test suite with unit and integration tests
 
-## Getting Started
+## Getting Started with Development
 
 ### Prerequisites
-- Python 3.10+
+- Python 3.12+
 - SQLite3
 - Docker (optional, for containerized deployment)
 - Git
 
-### Local Setup
+### Development Setup
 
 1. **Clone the repository**
    ```bash
@@ -195,78 +337,21 @@ The dataset contains **10,000+ delivery records** with comprehensive delivery in
    pip install -r requirements.txt
    ```
 
-### Docker Setup
-
-1. **Build Docker image**
+4. **Run development server**
    ```bash
-   docker build -t food-delivery-predictor .
+   uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
-2. **Run container**
-   ```bash
-   docker run -p 8000:8000 -v $(pwd)/data:/app/data food-delivery-predictor
-   ```
+### Production Deployment Options
 
-3. **Using Docker Compose (recommended)**
-   ```bash
-   docker-compose up --build
-   ```
+For detailed production deployment instructions, see [`reports/deployment_guide.md`](reports/deployment_guide.md)
 
-### Quick Start with Docker
+**Quick production setup:**
 ```bash
-# One-command setup
-git clone <repository-url> && cd ds_tech_task && docker-compose up --build
-```
+# Docker deployment
+docker build -t food-delivery-api .
+docker run -d -p 8000:8000 food-delivery-api
 
-### Quick Start
-
-```bash
-# Option 1: Quick startup script
-./start_api.sh
-
-# Option 2: Manual setup
-pip install -r requirements.txt
-uvicorn src.main:app --reload
-
-# Option 3: Docker deployment  
-docker-compose up --build
-```
-
-### API Usage Examples
-
-```bash
-# Health check
-curl http://localhost:8000/health
-
-# Single prediction
-curl -X POST "http://localhost:8000/predict" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "distance_km": 5.2,
-       "weather": "Clear", 
-       "traffic_level": "Medium",
-       "vehicle_type": "Scooter",
-       "preparation_time_min": 15.0,
-       "courier_experience_yrs": 3.0
-     }'
-
-# Interactive API documentation
-open http://localhost:8000/docs
-```
-
-### Python Client Usage
-```python
-# FastAPI service example
-import requests
-
-response = requests.post("http://localhost:8000/predict", json={
-    'distance_km': 5.2,
-    'weather': 'Clear',
-    'traffic_level': 'Medium',
-    'vehicle_type': 'Scooter',
-    'preparation_time_min': 15,
-    'courier_experience_yrs': 3
-})
-
-estimated_time = response.json()['predicted_delivery_time']
+# Docker Compose (recommended)
+docker-compose up -d --build
 ```

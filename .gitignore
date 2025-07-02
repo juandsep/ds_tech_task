@@ -3,14 +3,17 @@
 /data
 .DS_Store
 /models
-.sh
-star_api.sh
-.env.example
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
 *$py.class
+
+# Other Python artifacts
+.sh
+star_api.sh
+.env.example
+
 
 # C extensions
 *.so
